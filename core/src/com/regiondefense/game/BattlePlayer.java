@@ -2,8 +2,10 @@ package com.regiondefense.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
 import static com.regiondefense.game.Constants.DIAGONAL_SPEED;
@@ -11,29 +13,34 @@ import static com.regiondefense.game.Constants.DIAGONAL_SPEED;
 public class BattlePlayer extends AbstractEntity {
     private static final int SPEED = 200;
 
-    private Texture playerImage;
+    private final Texture playerImage;
 
-    private Rectangle boundingBox;
+    private final ShapeRenderer shapeRenderer;
 
-    private float x;
-    private float y;
+    private Rectangle box;
 
     public BattlePlayer() {
         playerImage = new Texture(Gdx.files.internal("player.png"));
 
-        x = Gdx.graphics.getWidth() / 2;
-        y = Gdx.graphics.getHeight() / 2;
+        box = new Rectangle();
+        box.x = Gdx.graphics.getWidth() / 2.0f;
+        box.y = Gdx.graphics.getHeight() / 2.0f;
+        box.width = 32;
+        box.height = 32;
 
-        boundingBox = new Rectangle();
-        boundingBox.width = 32;
-        boundingBox.height = 32;
+        shapeRenderer = new ShapeRenderer();
     }
 
     @Override
     protected void render(final SpriteBatch batch) {
         batch.begin();
-        batch.draw(playerImage, x, y);
+        batch.draw(playerImage, box.x, box.y);
         batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(box.x, box.y, box.width, box.height);
+        shapeRenderer.end();
     }
 
     @Override
@@ -68,8 +75,8 @@ public class BattlePlayer extends AbstractEntity {
             vmov = vmov * DIAGONAL_SPEED;
         }
 
-        x += hmov;
-        y += vmov;
+        box.x += hmov;
+        box.y += vmov;
     }
 
     @Override
