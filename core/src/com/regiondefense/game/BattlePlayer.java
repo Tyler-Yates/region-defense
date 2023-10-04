@@ -32,7 +32,7 @@ public class BattlePlayer extends AbstractEntity {
     }
 
     @Override
-    protected void render(final SpriteBatch batch) {
+    public void render(final SpriteBatch batch) {
         batch.begin();
         batch.draw(playerImage, box.x, box.y);
         batch.end();
@@ -44,7 +44,7 @@ public class BattlePlayer extends AbstractEntity {
     }
 
     @Override
-    protected void update(final float deltaTime) {
+    public void update(final float deltaTime) {
         handleMovement(deltaTime);
     }
 
