@@ -2,19 +2,25 @@ package com.regiondefense.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class RegionDefenseGame extends ApplicationAdapter {
 	SpriteBatch batch;
+	BitmapFont overlayFont;
 
 	private BattlePlayer player;
+	private PerformanceOverlay performanceOverlay;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 
+		overlayFont = new BitmapFont(Gdx.files.internal("overlay_font/font.fnt"));
+
 		player = new BattlePlayer();
+		performanceOverlay = new PerformanceOverlay();
 	}
 
 	@Override
@@ -38,6 +44,8 @@ public class RegionDefenseGame extends ApplicationAdapter {
 
 	private void handleRenders(final SpriteBatch spriteBatch) {
 		player.render(spriteBatch);
+
+		performanceOverlay.render(overlayFont, batch);
 	}
 
 	private void handleUpdates(final float deltaTime) {
@@ -48,5 +56,6 @@ public class RegionDefenseGame extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		player.dispose();
+		overlayFont.dispose();
 	}
 }
