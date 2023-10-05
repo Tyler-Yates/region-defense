@@ -1,20 +1,21 @@
 package com.regiondefense.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 
 import static com.regiondefense.game.Constants.DIAGONAL_SPEED;
 
-public class BattlePlayer extends AbstractEntity {
-    private static final int SPEED = 200;
+public class Enemy extends AbstractEntity {
+    private static final int SPEED = 100;
 
-    public BattlePlayer() {
-        sprite = new Texture(Gdx.files.internal("player.png"));
+    private final RegionDefenseGame game;
 
-        final float radius = sprite.getWidth() / 2f;
-        collision = new Circle(-radius, -radius, radius);
+    public Enemy(final RegionDefenseGame game) {
+        this.game = game;
+
+        sprite = new Texture(Gdx.files.internal("enemy.png"));
+        collision = new Circle(-500, 0, sprite.getWidth() / 2f);
     }
 
     @Override
@@ -24,24 +25,23 @@ public class BattlePlayer extends AbstractEntity {
 
     @Override
     public void update(final float deltaTime) {
-        handleMovement(deltaTime);
-    }
+        if (game.base.collision.overlaps(collision)) {
+            return;
+        }
 
-    private void handleMovement(final float deltaTime) {
         float hor = 0;
         float ver = 0;
 
-        if (Gdx.input.isKeyPressed(Keys.A)) {
-            hor --;
+        if (game.base.getX() < collision.x) {
+            hor = -1;
+        } else if (game.base.getX() > collision.x) {
+            hor = 1;
         }
-        if (Gdx.input.isKeyPressed(Keys.D)) {
-            hor ++;
-        }
-        if (Gdx.input.isKeyPressed(Keys.S)) {
-            ver --;
-        }
-        if (Gdx.input.isKeyPressed(Keys.W)) {
-            ver ++;
+
+        if (game.base.getY() < collision.y) {
+            ver = -1;
+        } else if (game.base.getY() > collision.y) {
+            ver = 1;
         }
 
         float hmov, vmov;
@@ -60,6 +60,6 @@ public class BattlePlayer extends AbstractEntity {
 
     @Override
     public void dispose() {
-        sprite.dispose();
+        super.dispose();
     }
 }

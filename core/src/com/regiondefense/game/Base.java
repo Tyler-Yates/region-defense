@@ -2,21 +2,19 @@ package com.regiondefense.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Circle;
 
 public class Base extends AbstractEntity {
-    private final Texture sprite;
-
     private int health = 1000;
 
     public Base() {
-        this.sprite = new Texture(Gdx.files.internal("base.png"));
+        sprite = new Texture(Gdx.files.internal("base.png"));
+        collision = new Circle(0, 0, sprite.getWidth() / 2f - 5);
     }
 
     @Override
     public void render(final RenderGroup renderGroup) {
-        renderGroup.batch.begin();
-        renderGroup.batch.draw(sprite, -sprite.getWidth()/2f, -sprite.getHeight()/2f);
-        renderGroup.batch.end();
+        super.render(renderGroup);
     }
 
     @Override
@@ -26,6 +24,6 @@ public class Base extends AbstractEntity {
 
     @Override
     public void dispose() {
-        sprite.dispose();
+        super.dispose();
     }
 }

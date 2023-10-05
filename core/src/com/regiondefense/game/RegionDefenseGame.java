@@ -6,7 +6,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RegionDefenseGame extends ApplicationAdapter {
 	SpriteBatch gameBatch;
@@ -19,8 +23,10 @@ public class RegionDefenseGame extends ApplicationAdapter {
 
 	RenderGroup gameRenderGroup;
 
-	private BattlePlayer player;
-	private Base base;
+	BattlePlayer player;
+	Base base;
+
+	List<Enemy> enemyList = new ArrayList<>();
 
 	private PerformanceOverlay performanceOverlay;
 	
@@ -43,6 +49,8 @@ public class RegionDefenseGame extends ApplicationAdapter {
 		player = new BattlePlayer();
 		base = new Base();
 
+		enemyList.add(new Enemy(this));
+
 		performanceOverlay = new PerformanceOverlay(this);
 	}
 
@@ -56,14 +64,21 @@ public class RegionDefenseGame extends ApplicationAdapter {
 			return;
 		}
 
+		// Clear the screen to get a fresh drawing space
 		ScreenUtils.clear(1, 1, 1, 1);
+
+		// Perform all updates before we render anything
+		handleUpdates(deltaTime);
+
+		// Make the camera follow the player
+		// The camera position is actually the center of the screen so set it to the player's x and y position
+		gameCamera.position.set(player.getX(), player.getY(), 0);
 		gameCamera.update();
 
 		// Render based on the camera within the game world
 		gameBatch.setProjectionMatrix(gameCamera.combined);
-
-		// Perform all updates before we render anything
-		handleUpdates(deltaTime);
+		shapeRenderer.setProjectionMatrix(gameCamera.combined);
+		gameCamera.update();
 
 		// Render everything as the last step
 		handleRenders();
@@ -72,6 +87,9 @@ public class RegionDefenseGame extends ApplicationAdapter {
 	private void handleRenders() {
 		player.render(gameRenderGroup);
 		base.render(gameRenderGroup);
+		for (final Enemy enemy: enemyList) {
+			enemy.render(gameRenderGroup);
+		}
 
 		// We don't want the overlay to be rendered based on the camera
 		performanceOverlay.render(font, uiBatch);
@@ -79,6 +97,9 @@ public class RegionDefenseGame extends ApplicationAdapter {
 
 	private void handleUpdates(final float deltaTime) {
 		player.update(deltaTime);
+		for (final Enemy enemy: enemyList) {
+			enemy.update(deltaTime);
+		}
 		base.update(deltaTime);
 	}
 	
