@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,7 +44,7 @@ public class Tower extends AbstractEntity {
         final GlyphLayout layout = new GlyphLayout(renderGroup.font, text);
         renderGroup.batch.begin();
         // Change color to show reload status
-        if (reloadTimeLeft == 0) {
+        if (reloadTimeLeft <= 0) {
             renderGroup.font.setColor(Color.WHITE);
         } else {
             renderGroup.font.setColor(Color.RED);
@@ -51,8 +52,18 @@ public class Tower extends AbstractEntity {
         renderGroup.font.draw(renderGroup.batch, text, getX() - layout.width / 2f, getY() + layout.height / 2f);
         renderGroup.batch.end();
 
-        // Draw the range for debug
+        // Draw reload bar
+        final Rectangle reloadBar = new Rectangle(getX() - 20, getY() + 10, 40, 10);
+        renderGroup.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        renderGroup.shapeRenderer.setColor(Color.RED);
+        renderGroup.shapeRenderer.rect(reloadBar.x, reloadBar.y, reloadBar.width * (reloadTimeLeft / reloadTimeSeconds), reloadBar.height);
+        renderGroup.shapeRenderer.end();
+
         renderGroup.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        // Draw reload bar outline
+        renderGroup.shapeRenderer.setColor(Color.WHITE);
+        renderGroup.shapeRenderer.rect(reloadBar.x, reloadBar.y, reloadBar.width, reloadBar.height);
+        // Draw the range for debug
         renderGroup.shapeRenderer.setColor(Color.TEAL);
         renderGroup.shapeRenderer.circle(collision.x, collision.y, range);
         renderGroup.shapeRenderer.end();
