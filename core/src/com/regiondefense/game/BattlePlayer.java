@@ -60,6 +60,6 @@ public class BattlePlayer extends AbstractEntity {
 
     @Override
     public void dispose() {
-        sprite.dispose();
+        super.dispose();
     }
 }
