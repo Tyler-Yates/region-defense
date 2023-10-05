@@ -2,25 +2,37 @@ package com.regiondefense.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class RegionDefenseGame extends ApplicationAdapter {
-	SpriteBatch batch;
+	SpriteBatch gameBatch;
+	OrthographicCamera gameCamera;
+
+	SpriteBatch uiBatch;
 	BitmapFont overlayFont;
+	OrthographicCamera UiCamera;
 
 	private BattlePlayer player;
 	private PerformanceOverlay performanceOverlay;
 	
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
+		gameBatch = new SpriteBatch();
+		uiBatch = new SpriteBatch();
+
+		gameCamera = new OrthographicCamera();
+		gameCamera.setToOrtho(false, 1024, 768);
+
+		UiCamera = new OrthographicCamera();
+		UiCamera.setToOrtho(false, 1024, 768);
 
 		overlayFont = new BitmapFont(Gdx.files.internal("overlay_font/font.fnt"));
 
 		player = new BattlePlayer();
-		performanceOverlay = new PerformanceOverlay();
+		performanceOverlay = new PerformanceOverlay(this);
 	}
 
 	@Override
@@ -34,18 +46,23 @@ public class RegionDefenseGame extends ApplicationAdapter {
 		}
 
 		ScreenUtils.clear(1, 1, 1, 1);
+		gameCamera.update();
+
+		// Render based on the camera within the game world
+		gameBatch.setProjectionMatrix(gameCamera.combined);
 
 		// Perform all updates before we render anything
 		handleUpdates(deltaTime);
 
 		// Render everything as the last step
-		handleRenders(batch);
+		handleRenders(gameBatch);
 	}
 
 	private void handleRenders(final SpriteBatch spriteBatch) {
-		player.render(spriteBatch);
+		player.render(spriteBatch, gameCamera);
 
-		performanceOverlay.render(overlayFont, batch);
+		// We don't want the overlay to be rendered based on the camera
+		performanceOverlay.render(overlayFont, uiBatch);
 	}
 
 	private void handleUpdates(final float deltaTime) {
@@ -54,7 +71,7 @@ public class RegionDefenseGame extends ApplicationAdapter {
 	
 	@Override
 	public void dispose () {
-		batch.dispose();
+		gameBatch.dispose();
 		player.dispose();
 		overlayFont.dispose();
 	}

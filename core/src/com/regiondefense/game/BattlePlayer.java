@@ -2,19 +2,19 @@ package com.regiondefense.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
-import static com.regiondefense.game.Constants.DIAGONAL_SPEED;
+import static com.regiondefense.game.Constants.*;
 
 public class BattlePlayer extends AbstractEntity {
     private static final int SPEED = 200;
 
     private final Texture playerImage;
-
     private final ShapeRenderer shapeRenderer;
 
     private Rectangle box;
@@ -23,8 +23,8 @@ public class BattlePlayer extends AbstractEntity {
         playerImage = new Texture(Gdx.files.internal("player.png"));
 
         box = new Rectangle();
-        box.x = Gdx.graphics.getWidth() / 2.0f;
-        box.y = Gdx.graphics.getHeight() / 2.0f;
+        box.x = 0;
+        box.y = 0;
         box.width = 32;
         box.height = 32;
 
@@ -32,11 +32,19 @@ public class BattlePlayer extends AbstractEntity {
     }
 
     @Override
-    public void render(final SpriteBatch batch) {
+    public void render(final SpriteBatch batch, final Camera camera) {
+        // Make the camera follow the player
+        // The camera position is actually the center of the screen so set it to the player's x and y position
+        camera.position.set(box.x, box.y, 0);
+        camera.update();
+
+        // Draw the player sprite
         batch.begin();
         batch.draw(playerImage, box.x, box.y);
         batch.end();
 
+        // Draw the bounding box for debug
+        shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(box.x, box.y, box.width, box.height);

@@ -1,5 +1,6 @@
 package com.regiondefense.game;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public interface Entity {
@@ -8,12 +9,13 @@ public interface Entity {
      * method.
      *
      * @param batch the SpriteBatch
+     * @param camera the Camera
      */
-    void render(final SpriteBatch batch);
+    void render(final SpriteBatch batch, final Camera camera);
 
     /**
      * Method to handle updating the state of the entity. This will be called <strong>before</strong> the
-     * {@link #render(SpriteBatch)} method.
+     * {@link #render(SpriteBatch, Camera)} method.
      *
      * @param deltaTime the time since the last frame as a fraction of a second
      */
