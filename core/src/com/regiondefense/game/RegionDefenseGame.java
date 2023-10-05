@@ -30,7 +30,8 @@ public class RegionDefenseGame extends ApplicationAdapter {
         player = new BattlePlayer();
         base = new Base(this);
 
-        enemyList.add(new Enemy(this));
+        enemyList.add(new Enemy(this, -500, 200));
+        enemyList.add(new Enemy(this, 800, -300));
 
         overlayList.add(new HudOverlay(this));
         overlayList.add(new PerformanceOverlay(this));

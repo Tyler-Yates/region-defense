@@ -4,14 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 
-import static com.regiondefense.game.Constants.DIAGONAL_SPEED;
-
 public class Enemy extends DamageEntity {
     private static final int SPEED = 100;
 
     private final RegionDefenseGame game;
 
-    public Enemy(final RegionDefenseGame game) {
+    public Enemy(final RegionDefenseGame game, final float x, final float y) {
         this.game = game;
 
         health = 100;
@@ -20,7 +18,7 @@ public class Enemy extends DamageEntity {
         damage = 10;
 
         sprite = new Texture(Gdx.files.internal("enemy.png"));
-        collision = new Circle(-500, 0, sprite.getWidth() / 2f - 2);
+        collision = new Circle(x, y, sprite.getWidth() / 2f - 2);
     }
 
     @Override
@@ -38,33 +36,12 @@ public class Enemy extends DamageEntity {
             return;
         }
 
-        float hor = 0;
-        float ver = 0;
-
-        if (game.base.getX() < collision.x) {
-            hor = -1;
-        } else if (game.base.getX() > collision.x) {
-            hor = 1;
-        }
-
-        if (game.base.getY() < collision.y) {
-            ver = -1;
-        } else if (game.base.getY() > collision.y) {
-            ver = 1;
-        }
-
-        float hmov, vmov;
-        hmov = hor * SPEED * deltaTime;
-        vmov = ver * SPEED * deltaTime;
-
-        // We don't want the player moving faster in the diagonal direction
-        if (hor != 0 && ver != 0) {
-            hmov = hmov * DIAGONAL_SPEED;
-            vmov = vmov * DIAGONAL_SPEED;
-        }
-
-        collision.x += hmov;
-        collision.y += vmov;
+        // Move towards the center of the base
+        final double angle = Math.atan2(game.base.getY() - getY(), game.base.getX() - getX());
+        float hor = (float) Math.cos(angle);
+        float ver = (float) Math.sin(angle);
+        collision.x += hor * SPEED * deltaTime;
+        collision.y += ver * SPEED * deltaTime;
     }
 
     @Override
