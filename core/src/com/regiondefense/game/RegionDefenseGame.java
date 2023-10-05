@@ -16,6 +16,7 @@ public class RegionDefenseGame extends ApplicationAdapter {
     Base base;
 
     List<Enemy> enemyList = new ArrayList<>();
+    List<Tower> towerList = new ArrayList<>();
 
     List<Overlay> overlayList = new ArrayList<>();
 
@@ -32,6 +33,12 @@ public class RegionDefenseGame extends ApplicationAdapter {
 
         enemyList.add(new Enemy(this, -500, 200));
         enemyList.add(new Enemy(this, 800, -300));
+        enemyList.add(new Enemy(this, 800, 800));
+
+        towerList.add(new Tower(this, -300, 0));
+        towerList.add(new Tower(this, 300, 0));
+        towerList.add(new Tower(this, 0, -300));
+        towerList.add(new Tower(this, 0, 300));
 
         overlayList.add(new HudOverlay(this));
         overlayList.add(new PerformanceOverlay(this));
@@ -69,6 +76,10 @@ public class RegionDefenseGame extends ApplicationAdapter {
     private void handleRenders() {
         base.render(gameRenderGroup);
 
+        for (final Tower tower : towerList) {
+            tower.render(gameRenderGroup);
+        }
+
         for (final Enemy enemy : enemyList) {
             enemy.render(gameRenderGroup);
         }
@@ -85,11 +96,15 @@ public class RegionDefenseGame extends ApplicationAdapter {
     private void handleUpdates(final float deltaTime) {
         player.update(deltaTime);
 
+        for (final Tower tower : towerList) {
+            tower.update(deltaTime);
+        }
+
         for (final Iterator<Enemy> iterator = enemyList.iterator(); iterator.hasNext(); ) {
             final Enemy enemy = iterator.next();
             enemy.update(deltaTime);
 
-            if (enemy.getHealth() < 0) {
+            if (enemy.getHealth() <= 0) {
                 iterator.remove();
             }
         }

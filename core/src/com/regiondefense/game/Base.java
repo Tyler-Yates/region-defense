@@ -16,7 +16,8 @@ public class Base extends DamageEntity {
         health = 1000;
         maxHealth = health;
 
-        damage = 10;
+        // TODO change this back to deal some damage
+        damage = 0;
     }
 
     @Override

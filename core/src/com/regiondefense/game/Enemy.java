@@ -1,16 +1,25 @@
 package com.regiondefense.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Circle;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Enemy extends DamageEntity {
+    private static final AtomicInteger IDS = new AtomicInteger(1);
+
     private static final int SPEED = 100;
 
     private final RegionDefenseGame game;
+    private final int id;
 
     public Enemy(final RegionDefenseGame game, final float x, final float y) {
         this.game = game;
+
+        id = IDS.getAndIncrement();
 
         health = 100;
         maxHealth = health;
@@ -24,6 +33,14 @@ public class Enemy extends DamageEntity {
     @Override
     public void render(final RenderGroup renderGroup) {
         super.render(renderGroup);
+
+        // Draw ID for identification to debug
+        final String text = String.format("%d", id);
+        final GlyphLayout layout = new GlyphLayout(renderGroup.font, text);
+        renderGroup.batch.begin();
+        renderGroup.font.setColor(Color.WHITE);
+        renderGroup.font.draw(renderGroup.batch, text, getX() - layout.width / 2f, getY() + layout.height / 2f);
+        renderGroup.batch.end();
     }
 
     @Override
@@ -47,5 +64,9 @@ public class Enemy extends DamageEntity {
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    public int getId() {
+        return id;
     }
 }
