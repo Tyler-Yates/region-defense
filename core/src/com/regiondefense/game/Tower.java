@@ -16,12 +16,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Tower extends AbstractEntity {
     private static final AtomicInteger IDS = new AtomicInteger(1);
 
+    private static final int BASE_DAMAGE = 10;
+    private static final int BASE_RANGE = 200;
+    private static final int BASE_RELOAD_TIME = 2;
+
     private final int id;
 
-    private int damage = 10;
-    private int range = 250;
-    private float reloadTimeSeconds = 2;
+    private int damage = BASE_DAMAGE;
+    private int range = BASE_RANGE;
+    private float reloadTime = BASE_RELOAD_TIME;
 
+    // The current level of the tower. This affects how powerful the tower is.
+    private int level = 1;
+
+    // The current amount of reload time left. When this is at or below zero, we're ready to fire.
     private float reloadTimeLeft = 0;
 
     private final RegionDefenseGame game;
@@ -39,24 +47,29 @@ public class Tower extends AbstractEntity {
     public void render(final RenderGroup renderGroup) {
         super.render(renderGroup);
 
-        // Draw ID for identification to debug
-        final String text = String.format("%d", id);
-        final GlyphLayout layout = new GlyphLayout(renderGroup.font, text);
+        final String idText = String.format("%d", id);
+        final GlyphLayout idLayout = new GlyphLayout(renderGroup.font, idText);
+        final String levelText = String.format("Lv %d", level);
+        final GlyphLayout levelLayout = new GlyphLayout(renderGroup.font, levelText);
         renderGroup.batch.begin();
+        // Draw ID for identification to debug
         // Change color to show reload status
         if (reloadTimeLeft <= 0) {
             renderGroup.font.setColor(Color.WHITE);
         } else {
             renderGroup.font.setColor(Color.RED);
         }
-        renderGroup.font.draw(renderGroup.batch, text, getX() - layout.width / 2f, getY() + layout.height / 2f);
+        renderGroup.font.draw(renderGroup.batch, idText, getX() - idLayout.width / 2f, getY() + idLayout.height / 2f);
+        // Draw the tower level
+        renderGroup.font.setColor(Color.WHITE);
+        renderGroup.font.draw(renderGroup.batch, levelText, getX() - levelLayout.width / 2f, getY() - levelLayout.height / 2f);
         renderGroup.batch.end();
 
         // Draw reload bar
         final Rectangle reloadBar = new Rectangle(getX() - 20, getY() + 10, 40, 10);
         renderGroup.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         renderGroup.shapeRenderer.setColor(Color.RED);
-        renderGroup.shapeRenderer.rect(reloadBar.x, reloadBar.y, reloadBar.width * (reloadTimeLeft / reloadTimeSeconds), reloadBar.height);
+        renderGroup.shapeRenderer.rect(reloadBar.x, reloadBar.y, reloadBar.width * (reloadTimeLeft / reloadTime), reloadBar.height);
         renderGroup.shapeRenderer.end();
 
         renderGroup.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -67,6 +80,18 @@ public class Tower extends AbstractEntity {
         renderGroup.shapeRenderer.setColor(Color.TEAL);
         renderGroup.shapeRenderer.circle(collision.x, collision.y, range);
         renderGroup.shapeRenderer.end();
+    }
+
+    /**
+     * Levels up the tower. This method adjust stats based on the new level.
+     */
+    public void levelUp() {
+        level++;
+
+        damage = BASE_DAMAGE * level;
+        range = (int) (BASE_RANGE + 50 * Math.sqrt(level - 1));
+        reloadTime = (float) (BASE_RELOAD_TIME / Math.sqrt(level));
+        System.out.printf("Tower %d | lv %d | damage:%d range:%d reloadTime:%f %n", id, level, damage, range, reloadTime);
     }
 
     @Override
@@ -102,7 +127,11 @@ public class Tower extends AbstractEntity {
             closestEnemy.dealDamage(damage, 1);
 
             // Start reloading
-            reloadTimeLeft = reloadTimeSeconds;
+            reloadTimeLeft = reloadTime;
         }
+    }
+
+    public int getId() {
+        return id;
     }
 }

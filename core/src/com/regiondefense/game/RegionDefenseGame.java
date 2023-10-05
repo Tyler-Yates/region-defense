@@ -28,7 +28,7 @@ public class RegionDefenseGame extends ApplicationAdapter {
         // Rendering group for the UI which does not move within the world
         uiRenderGroup = new RenderGroup();
 
-        player = new BattlePlayer();
+        player = new BattlePlayer(this);
         base = new Base(this);
 
         enemyList.add(new Enemy(this, -500, 200));
