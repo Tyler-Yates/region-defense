@@ -2,10 +2,8 @@ package com.regiondefense.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -14,41 +12,38 @@ import static com.regiondefense.game.Constants.*;
 public class BattlePlayer extends AbstractEntity {
     private static final int SPEED = 200;
 
-    private final Texture playerImage;
-    private final ShapeRenderer shapeRenderer;
+    private final Texture sprite;
 
     private Rectangle box;
 
     public BattlePlayer() {
-        playerImage = new Texture(Gdx.files.internal("player.png"));
+        sprite = new Texture(Gdx.files.internal("player.png"));
 
         box = new Rectangle();
+        box.width = sprite.getWidth();
+        box.height = sprite.getHeight();
         box.x = 0;
         box.y = 0;
-        box.width = 32;
-        box.height = 32;
-
-        shapeRenderer = new ShapeRenderer();
     }
 
     @Override
-    public void render(final SpriteBatch batch, final Camera camera) {
+    public void render(final RenderGroup renderGroup) {
         // Make the camera follow the player
         // The camera position is actually the center of the screen so set it to the player's x and y position
-        camera.position.set(box.x, box.y, 0);
-        camera.update();
+        renderGroup.camera.position.set(box.x, box.y, 0);
+        renderGroup.camera.update();
 
         // Draw the player sprite
-        batch.begin();
-        batch.draw(playerImage, box.x, box.y);
-        batch.end();
+        renderGroup.batch.begin();
+        renderGroup.batch.draw(sprite, box.x - box.width/2f, box.y - box.height/2f);
+        renderGroup.batch.end();
 
         // Draw the bounding box for debug
-        shapeRenderer.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(box.x, box.y, box.width, box.height);
-        shapeRenderer.end();
+        renderGroup.shapeRenderer.setProjectionMatrix(renderGroup.camera.combined);
+        renderGroup.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        renderGroup.shapeRenderer.setColor(Color.RED);
+        renderGroup.shapeRenderer.rect(box.x - box.width/2f, box.y - box.height/2f, box.width, box.height);
+        renderGroup.shapeRenderer.end();
     }
 
     @Override
@@ -89,6 +84,6 @@ public class BattlePlayer extends AbstractEntity {
 
     @Override
     public void dispose() {
-        playerImage.dispose();
+        sprite.dispose();
     }
 }
