@@ -1,11 +1,9 @@
 package com.regiondefense.game;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 public interface Overlay {
     /**
      * Render the overlay on screen.
+     * @param renderGroup the render group
      */
-    void render(BitmapFont font, SpriteBatch batch);
+    void render(final RenderGroup renderGroup);
 }

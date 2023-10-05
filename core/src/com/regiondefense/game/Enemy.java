@@ -8,6 +8,7 @@ import static com.regiondefense.game.Constants.DIAGONAL_SPEED;
 
 public class Enemy extends AbstractEntity {
     private static final int SPEED = 100;
+    private static final int DAMAGE = 10;
 
     private final RegionDefenseGame game;
 
@@ -15,7 +16,7 @@ public class Enemy extends AbstractEntity {
         this.game = game;
 
         sprite = new Texture(Gdx.files.internal("enemy.png"));
-        collision = new Circle(-500, 0, sprite.getWidth() / 2f);
+        collision = new Circle(-500, 0, sprite.getWidth() / 2f - 2);
     }
 
     @Override
@@ -25,7 +26,9 @@ public class Enemy extends AbstractEntity {
 
     @Override
     public void update(final float deltaTime) {
-        if (game.base.collision.overlaps(collision)) {
+        // Stop moving when we hit the base
+        if (collidesWith(game.base.collision)) {
+            game.base.damage(DAMAGE, deltaTime);
             return;
         }
 

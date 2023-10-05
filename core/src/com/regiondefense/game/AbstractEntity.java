@@ -40,7 +40,6 @@ public abstract class AbstractEntity implements Entity {
         renderGroup.batch.end();
 
         // Draw the bounding box for debug
-        renderGroup.shapeRenderer.setProjectionMatrix(renderGroup.camera.combined);
         renderGroup.shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         renderGroup.shapeRenderer.setColor(Color.RED);
         renderGroup.shapeRenderer.circle(collision.x, collision.y, collision.radius);

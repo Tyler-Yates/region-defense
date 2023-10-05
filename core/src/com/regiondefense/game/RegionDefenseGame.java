@@ -13,45 +13,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RegionDefenseGame extends ApplicationAdapter {
-	SpriteBatch gameBatch;
-	OrthographicCamera gameCamera;
-	ShapeRenderer shapeRenderer;
-
-	SpriteBatch uiBatch;
-	BitmapFont font;
-	OrthographicCamera UiCamera;
-
 	RenderGroup gameRenderGroup;
+	RenderGroup uiRenderGroup;
 
 	BattlePlayer player;
 	Base base;
 
 	List<Enemy> enemyList = new ArrayList<>();
 
-	private PerformanceOverlay performanceOverlay;
+	List<Overlay> overlayList = new ArrayList<>();
 	
 	@Override
 	public void create () {
-		gameBatch = new SpriteBatch();
-		uiBatch = new SpriteBatch();
-		shapeRenderer = new ShapeRenderer();
+		// Rendering group for the game which moves within the world
+		gameRenderGroup = new RenderGroup();
 
-		gameCamera = new OrthographicCamera();
-		gameCamera.setToOrtho(false, 1024, 768);
-
-		UiCamera = new OrthographicCamera();
-		UiCamera.setToOrtho(false, 1024, 768);
-
-		font = new BitmapFont(Gdx.files.internal("overlay_font/font.fnt"));
-
-		gameRenderGroup = new RenderGroup(gameBatch, gameCamera, shapeRenderer, font);
+		// Rendering group for the UI which does not move within the world
+		uiRenderGroup = new RenderGroup();
 
 		player = new BattlePlayer();
-		base = new Base();
+		base = new Base(this);
 
 		enemyList.add(new Enemy(this));
 
-		performanceOverlay = new PerformanceOverlay(this);
+		overlayList.add(new HudOverlay(this));
+		overlayList.add(new PerformanceOverlay(this));
 	}
 
 	@Override
@@ -70,15 +56,14 @@ public class RegionDefenseGame extends ApplicationAdapter {
 		// Perform all updates before we render anything
 		handleUpdates(deltaTime);
 
-		// Make the camera follow the player
-		// The camera position is actually the center of the screen so set it to the player's x and y position
-		gameCamera.position.set(player.getX(), player.getY(), 0);
-		gameCamera.update();
+		// Make the game camera follow the player.
+		// The camera position is actually the center of the screen so set it to the player's x and y position.
+		gameRenderGroup.camera.position.set(player.getX(), player.getY(), 0);
+		gameRenderGroup.camera.update();
 
 		// Render based on the camera within the game world
-		gameBatch.setProjectionMatrix(gameCamera.combined);
-		shapeRenderer.setProjectionMatrix(gameCamera.combined);
-		gameCamera.update();
+		gameRenderGroup.batch.setProjectionMatrix(gameRenderGroup.camera.combined);
+		gameRenderGroup.shapeRenderer.setProjectionMatrix(gameRenderGroup.camera.combined);
 
 		// Render everything as the last step
 		handleRenders();
@@ -92,21 +77,24 @@ public class RegionDefenseGame extends ApplicationAdapter {
 		}
 
 		// We don't want the overlay to be rendered based on the camera
-		performanceOverlay.render(font, uiBatch);
+		for (final Overlay overlay : overlayList) {
+			overlay.render(uiRenderGroup);
+		}
 	}
 
 	private void handleUpdates(final float deltaTime) {
 		player.update(deltaTime);
+
 		for (final Enemy enemy: enemyList) {
 			enemy.update(deltaTime);
 		}
+
 		base.update(deltaTime);
 	}
 	
 	@Override
 	public void dispose () {
-		gameBatch.dispose();
-		player.dispose();
-		font.dispose();
+		gameRenderGroup.dispose();
+		uiRenderGroup.dispose();
 	}
 }
