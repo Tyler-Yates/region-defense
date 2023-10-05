@@ -6,14 +6,18 @@ import com.badlogic.gdx.math.Circle;
 
 import static com.regiondefense.game.Constants.DIAGONAL_SPEED;
 
-public class Enemy extends AbstractEntity {
+public class Enemy extends DamageEntity {
     private static final int SPEED = 100;
-    private static final int DAMAGE = 10;
 
     private final RegionDefenseGame game;
 
     public Enemy(final RegionDefenseGame game) {
         this.game = game;
+
+        health = 100;
+        maxHealth = health;
+
+        damage = 10;
 
         sprite = new Texture(Gdx.files.internal("enemy.png"));
         collision = new Circle(-500, 0, sprite.getWidth() / 2f - 2);
@@ -28,7 +32,9 @@ public class Enemy extends AbstractEntity {
     public void update(final float deltaTime) {
         // Stop moving when we hit the base
         if (collidesWith(game.base.collision)) {
-            game.base.damage(DAMAGE, deltaTime);
+            game.base.dealDamage(getDamage(), deltaTime);
+
+            dealDamage(game.base.getDamage(), deltaTime);
             return;
         }
 

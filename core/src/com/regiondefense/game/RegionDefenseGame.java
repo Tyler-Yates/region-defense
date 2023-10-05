@@ -10,91 +10,100 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class RegionDefenseGame extends ApplicationAdapter {
-	RenderGroup gameRenderGroup;
-	RenderGroup uiRenderGroup;
+    RenderGroup gameRenderGroup;
+    RenderGroup uiRenderGroup;
 
-	BattlePlayer player;
-	Base base;
+    BattlePlayer player;
+    Base base;
 
-	List<Enemy> enemyList = new ArrayList<>();
+    List<Enemy> enemyList = new ArrayList<>();
 
-	List<Overlay> overlayList = new ArrayList<>();
-	
-	@Override
-	public void create () {
-		// Rendering group for the game which moves within the world
-		gameRenderGroup = new RenderGroup();
+    List<Overlay> overlayList = new ArrayList<>();
 
-		// Rendering group for the UI which does not move within the world
-		uiRenderGroup = new RenderGroup();
+    @Override
+    public void create() {
+        // Rendering group for the game which moves within the world
+        gameRenderGroup = new RenderGroup();
 
-		player = new BattlePlayer();
-		base = new Base(this);
+        // Rendering group for the UI which does not move within the world
+        uiRenderGroup = new RenderGroup();
 
-		enemyList.add(new Enemy(this));
+        player = new BattlePlayer();
+        base = new Base(this);
 
-		overlayList.add(new HudOverlay(this));
-		overlayList.add(new PerformanceOverlay(this));
-	}
+        enemyList.add(new Enemy(this));
 
-	@Override
-	public void render () {
-		final float deltaTime = Gdx.graphics.getDeltaTime();
+        overlayList.add(new HudOverlay(this));
+        overlayList.add(new PerformanceOverlay(this));
+    }
 
-		// If the game is minimized or paused we can get very high deltaTime values, so just discard that first frame
-		if (deltaTime > 0.5) {
-			System.err.println("Skipping rendering due to high deltaTime: " + deltaTime);
-			return;
-		}
+    @Override
+    public void render() {
+        final float deltaTime = Gdx.graphics.getDeltaTime();
 
-		// Clear the screen to get a fresh drawing space
-		ScreenUtils.clear(1, 1, 1, 1);
+        // If the game is minimized or paused we can get very high deltaTime values, so just discard that first frame
+        if (deltaTime > 0.5) {
+            System.err.println("Skipping rendering due to high deltaTime: " + deltaTime);
+            return;
+        }
 
-		// Perform all updates before we render anything
-		handleUpdates(deltaTime);
+        // Clear the screen to get a fresh drawing space
+        ScreenUtils.clear(1, 1, 1, 1);
 
-		// Make the game camera follow the player.
-		// The camera position is actually the center of the screen so set it to the player's x and y position.
-		gameRenderGroup.camera.position.set(player.getX(), player.getY(), 0);
-		gameRenderGroup.camera.update();
+        // Perform all updates before we render anything
+        handleUpdates(deltaTime);
 
-		// Render based on the camera within the game world
-		gameRenderGroup.batch.setProjectionMatrix(gameRenderGroup.camera.combined);
-		gameRenderGroup.shapeRenderer.setProjectionMatrix(gameRenderGroup.camera.combined);
+        // Make the game camera follow the player.
+        // The camera position is actually the center of the screen so set it to the player's x and y position.
+        gameRenderGroup.camera.position.set(player.getX(), player.getY(), 0);
+        gameRenderGroup.camera.update();
 
-		// Render everything as the last step
-		handleRenders();
-	}
+        // Render based on the camera within the game world
+        gameRenderGroup.batch.setProjectionMatrix(gameRenderGroup.camera.combined);
+        gameRenderGroup.shapeRenderer.setProjectionMatrix(gameRenderGroup.camera.combined);
 
-	private void handleRenders() {
-		player.render(gameRenderGroup);
-		base.render(gameRenderGroup);
-		for (final Enemy enemy: enemyList) {
-			enemy.render(gameRenderGroup);
-		}
+        // Render everything as the last step
+        handleRenders();
+    }
 
-		// We don't want the overlay to be rendered based on the camera
-		for (final Overlay overlay : overlayList) {
-			overlay.render(uiRenderGroup);
-		}
-	}
+    private void handleRenders() {
+        base.render(gameRenderGroup);
 
-	private void handleUpdates(final float deltaTime) {
-		player.update(deltaTime);
+        for (final Enemy enemy : enemyList) {
+            enemy.render(gameRenderGroup);
+        }
 
-		for (final Enemy enemy: enemyList) {
-			enemy.update(deltaTime);
-		}
+        // Render the player the last amongst objects, so it always shows up on top
+        player.render(gameRenderGroup);
 
-		base.update(deltaTime);
-	}
-	
-	@Override
-	public void dispose () {
-		gameRenderGroup.dispose();
-		uiRenderGroup.dispose();
-	}
+        // We don't want the overlay to be rendered based on the camera
+        for (final Overlay overlay : overlayList) {
+            overlay.render(uiRenderGroup);
+        }
+    }
+
+    private void handleUpdates(final float deltaTime) {
+        player.update(deltaTime);
+
+        for (final Iterator<Enemy> iterator = enemyList.iterator(); iterator.hasNext(); ) {
+            final Enemy enemy = iterator.next();
+            enemy.update(deltaTime);
+
+            if (enemy.getHealth() < 0) {
+                iterator.remove();
+            }
+        }
+
+        base.update(deltaTime);
+    }
+
+    @Override
+    public void dispose() {
+        gameRenderGroup.dispose();
+        uiRenderGroup.dispose();
+    }
 }
